@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">OMDbApiTestApp</string>
+    <string name="enter_title">Enter Title</string>
+    <string name="search_button">Search</string>
+    <string name="create">Ok</string>
+    <string name="cancel">Cancel</string>
+</resources>
