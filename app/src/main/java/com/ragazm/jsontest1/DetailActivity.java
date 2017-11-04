@@ -40,6 +40,7 @@ public class DetailActivity extends AppCompatActivity {
     TextView textView;
     TextView textYear;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
