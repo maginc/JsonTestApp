@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Movie> data;
     private DataAdapter adapter;
-   //
+   // Confidential information such as private api key cant be shared in public lol :)
     private static final String API_KEY = "dc6b8a0";
     private String keyWord;
     private Context context;
@@ -60,15 +60,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(View view, int position) {
 
-                        String title = data.get(position).getTitle();
-                        String imageUrl = data.get(position).getPoster();
-                        String year = data.get(position).getYear();
+
                         String imdbId = data.get(position).getImdbID();
 
                         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                        intent.putExtra("title", title);
-                        intent.putExtra("imageUrl", imageUrl);
-                        intent.putExtra("year", year);
                         intent.putExtra("imdbId", imdbId);
                         startActivity(intent);
                     }
@@ -124,15 +119,6 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
 
                 JSONResponse jsonResponse = response.body();
-
-
-
-                //Log ************************************************
-                Log.d("RESPONSE:", jsonResponse.response);
-                if (jsonResponse.response.equals("True")) {
-                    Log.d("TOTAL RESULTS:", jsonResponse.totalResults);
-                }
-                //*****************************************************
 
                 if (((jsonResponse.response.equals("True")) && (response.isSuccessful()))) {
 

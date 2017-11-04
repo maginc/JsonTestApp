@@ -27,16 +27,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
+
+
 public class DetailActivity extends AppCompatActivity {
 
-    private String title;
-    private String imageUrl;
-    private String year;
+
     private String imdbId;
     RequestInterface requestInterface;
-    private String plot;
+    private String shortFullPlot;
     private static final String API_KEY = "dc6b8a0";
     TextView textPlot;
+    TextView textView;
+    TextView textYear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,29 +49,20 @@ public class DetailActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_detail);
 
+        textYear = findViewById(R.id.txtYear);
+        textView = findViewById(R.id.txtDescription);
+        textPlot = findViewById(R.id.txtPlot);
+
         requestInterface = APIClient.getClient().create(RequestInterface.class);
 
-
+        //Search for movie details using IMDB ID
         Bundle extras = getIntent().getExtras();
-        title = extras.getString("title");
-        imageUrl = extras.getString("imageUrl");
-        year = extras.getString("year");
         imdbId = extras.getString("imdbId");
-
-
-        //load image
-        new DownloadImageTask((ImageView) findViewById(R.id.imageView))
-                .execute(imageUrl);
-
-        TextView textYear = findViewById(R.id.txtYear);
-        TextView textView = findViewById(R.id.txtDescription);
-        textPlot = findViewById(R.id.txtPlot);
-        textView.setText(title);
-        textYear.setText(year);
+        shortFullPlot = "full";
 
         loadDetailsJSON();
 
-    }
+        }
 
     //Image loading method
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -98,20 +91,25 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void loadDetailsJSON() {
-        Call<MovieDetails> call = requestInterface.getDetails(imdbId, API_KEY);
+        Call<MovieDetails> call = requestInterface.getDetails(imdbId,shortFullPlot, API_KEY);
         call.enqueue(new Callback<MovieDetails>() {
             @Override
             public void onResponse(Call<MovieDetails> call, Response<MovieDetails> response) {
 
                 MovieDetails jsonResponse = response.body();
 
-                if (((response.isSuccessful()))) {
-
-                    plot = jsonResponse.getPlot();
-                    textPlot.setText(plot);
+                if (jsonResponse.getResponse().equals("True")&&(response.isSuccessful())) {
+                    //Load image
+                    new DownloadImageTask((ImageView) findViewById(R.id.imageView))
+                            .execute(jsonResponse.getPoster());
+                    //Populate text views with info
+                    textPlot.setText(jsonResponse.getPlot());
+                    textView.setText(jsonResponse.getTitle());
+                    textYear.setText(jsonResponse.getYear());
 
                 }else {
-                   textPlot.setText("");
+                   Toast.makeText(getApplicationContext(),
+                           "Something went wrong! :(", Toast.LENGTH_SHORT).show();
                 }
             }
 

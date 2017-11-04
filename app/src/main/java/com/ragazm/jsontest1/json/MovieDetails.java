@@ -2,7 +2,7 @@ package com.ragazm.jsontest1.json;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.ragazm.jsontest1.recyclerView.Rating;
+import com.ragazm.jsontest1.Rating;
 
 import java.util.List;
 

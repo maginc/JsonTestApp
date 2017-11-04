@@ -1,6 +1,6 @@
 package com.ragazm.jsontest1.json;
 
-import com.ragazm.jsontest1.json.JSONResponse;
+
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -19,6 +19,7 @@ public interface RequestInterface {
 
     @GET("/?")
     Call<MovieDetails> getDetails(@Query("i") String imdbId,
+                                  @Query("plot") String plot,
                                   @Query("apikey") String apiKey);
 
 }
