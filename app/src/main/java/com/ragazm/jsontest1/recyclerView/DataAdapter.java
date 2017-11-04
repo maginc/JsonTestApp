@@ -1,4 +1,4 @@
-package com.ragazm.jsontest1;
+package com.ragazm.jsontest1.recyclerView;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,7 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.ragazm.jsontest1.Movie;
+import com.ragazm.jsontest1.R;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Andris on 002 02.11.17.
@@ -14,11 +18,11 @@ import java.util.ArrayList;
 
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
 
-    private ArrayList<Movie> movies;
+    private List<Movie> movies;
 
 
 
-    public DataAdapter(ArrayList<Movie> movies) {
+    public DataAdapter(List<Movie> movies) {
         this.movies = movies;
 
     }

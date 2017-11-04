@@ -1,4 +1,4 @@
-package com.ragazm.jsontest1;
+package com.ragazm.jsontest1.recyclerView;
 
 
 import android.content.Context;

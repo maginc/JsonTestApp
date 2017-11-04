@@ -12,13 +12,18 @@ import android.widget.SearchView;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
-import java.util.ArrayList;
-import java.util.Arrays;
+
+import com.ragazm.jsontest1.json.APIClient;
+import com.ragazm.jsontest1.json.JSONResponse;
+import com.ragazm.jsontest1.json.RequestInterface;
+import com.ragazm.jsontest1.recyclerView.DataAdapter;
+import com.ragazm.jsontest1.recyclerView.MyClickListener;
+
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Andris on 002 02.11.17.
@@ -28,12 +33,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private ArrayList<Movie> data;
+
+    private List<Movie> data;
     private DataAdapter adapter;
-    private static final String BASE_URL = "http://www.omdbapi.com";
+   //
     private static final String API_KEY = "dc6b8a0";
     private String keyWord;
     private Context context;
+    RequestInterface requestInterface;
 
 
     @Override
@@ -41,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        //Bind http client with our call interface
+        requestInterface = APIClient.getClient().create(RequestInterface.class);
+
+
 
         recyclerView = findViewById(R.id.recyclerView);
 
@@ -52,10 +63,13 @@ public class MainActivity extends AppCompatActivity {
                         String title = data.get(position).getTitle();
                         String imageUrl = data.get(position).getPoster();
                         String year = data.get(position).getYear();
+                        String imdbId = data.get(position).getImdbID();
+
                         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
                         intent.putExtra("title", title);
                         intent.putExtra("imageUrl", imageUrl);
                         intent.putExtra("year", year);
+                        intent.putExtra("imdbId", imdbId);
                         startActivity(intent);
                     }
 
@@ -68,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
+        //Option menu for search field
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -102,28 +116,34 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-
+ // Load Json data from server using Retrofit
     private void loadJSON() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-
-        RequestInterface request = retrofit.create(RequestInterface.class);
-        Call<JSONResponse> call = request.getJSON(keyWord, API_KEY);
+        Call<JSONResponse> call = requestInterface.getSearch(keyWord, API_KEY);
         call.enqueue(new Callback<JSONResponse>() {
             @Override
             public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
 
                 JSONResponse jsonResponse = response.body();
 
-                if ((jsonResponse.getMovies() != null) && (response.isSuccessful())) {
 
-                        data = new ArrayList<>(Arrays.asList(jsonResponse.getMovies()));
 
+                //Log ************************************************
+                Log.d("RESPONSE:", jsonResponse.response);
+                if (jsonResponse.response.equals("True")) {
+                    Log.d("TOTAL RESULTS:", jsonResponse.totalResults);
+                }
+                //*****************************************************
+
+                if (((jsonResponse.response.equals("True")) && (response.isSuccessful()))) {
+
+
+                        data = jsonResponse.data;
                         adapter = new DataAdapter(data);
                         recyclerView.setAdapter(adapter);
-                    }else { Toast.makeText(getApplicationContext(), "Nothing found, try again!", Toast.LENGTH_SHORT).show();}
+                    }else {
+                    Toast.makeText(getApplicationContext(), "Nothing found, try again!", Toast.LENGTH_SHORT).show();
                 }
-
+                }
 
             @Override
             public void onFailure(Call<JSONResponse> call, Throwable t) {

@@ -20,17 +20,8 @@
         android:text="Title"
         android:textAlignment="center"
         android:textSize="30sp"
-        android:textStyle="bold"
         tools:text="Year" />
 
-    <TextView
-        android:id="@+id/txtYear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:textStyle="bold" />
     <TextView
         android:id="@+id/txtPlot"
         android:layout_width="match_parent"
