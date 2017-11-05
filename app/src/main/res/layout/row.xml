@@ -26,7 +26,9 @@
                 android:id="@+id/txtTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
                 android:textSize="24sp"
+                android:textStyle="bold"
                 tools:text="Title" />
 
             <TextView

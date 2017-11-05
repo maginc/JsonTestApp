@@ -16,7 +16,7 @@ public class APIClient {
 
     public static Retrofit getClient(){
 
-        //Interceptors monitor, rewrite and retry calls
+        //Interceptors monitor, shows nice log in LogCat
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();

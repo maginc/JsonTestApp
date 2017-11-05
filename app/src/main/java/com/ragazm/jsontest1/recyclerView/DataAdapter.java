@@ -19,7 +19,7 @@ import java.util.List;
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
 
     private List<Movie> movies;
-
+    private boolean isLoadingAdded = false;
 
 
     public DataAdapter(List<Movie> movies) {
@@ -69,5 +69,56 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         }
     }
 
+    public void add(Movie r) {
+        movies.add(r);
+        notifyItemInserted(movies.size() - 1);
+    }
+
+    public void addAll(List<Movie> moveResults) {
+        for (Movie result : moveResults) {
+            add(result);
+        }
+    }
+
+    public void remove(Movie r) {
+        int position = movies.indexOf(r);
+        if (position > -1) {
+            movies.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public void clear() {
+        isLoadingAdded = false;
+        while (getItemCount() > 0) {
+            remove(getItem(0));
+        }
+    }
+
+    public boolean isEmpty() {
+        return getItemCount() == 0;
+    }
+
+
+    public void addLoadingFooter() {
+        isLoadingAdded = true;
+        add(new Movie());
+    }
+
+    public void removeLoadingFooter() {
+        isLoadingAdded = false;
+
+        int position = movies.size() - 1;
+        Movie result = getItem(position);
+
+        if (result != null) {
+            movies.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public Movie getItem(int position) {
+        return movies.get(position);
+    }
 
 }

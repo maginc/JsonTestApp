@@ -2,6 +2,7 @@ package com.ragazm.jsontest1;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,6 +28,7 @@ import retrofit2.Response;
 
 /**
  * Created by Andris on 002 02.11.17.
+ * TODO fix bugs!!! load all results, make nice loading bar
  *
  */
 
@@ -35,12 +37,20 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
     private List<Movie> data;
+
     private DataAdapter adapter;
-   // Confidential information such as private api key cant be shared in public lol :)
+   // Confidential information such as private api key can't be shared in public lol :)
     private static final String API_KEY = "dc6b8a0";
     private String keyWord;
+    private String page;
+    private String totalResults;
+    int pageCount;
     private Context context;
     RequestInterface requestInterface;
+    LinearLayoutManager layoutManager;
+
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
 
 
     @Override
@@ -51,18 +61,55 @@ public class MainActivity extends AppCompatActivity {
         //Bind http client with our call interface
         requestInterface = APIClient.getClient().create(RequestInterface.class);
 
-
+        pageCount = 0;
 
         recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+        //Default value
+        page = "1";
+
+        recyclerView.addOnScrollListener(new PageScrollListener(layoutManager) {
+            @Override
+            protected void loadMoreItems() {
+
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        page = String.valueOf(Integer.valueOf(page) + 1);
+
+                        loadJSON();
+                    }
+                }, 1000);
+
+
+            }
+
+            @Override
+            public int getTotalPageCount() {
+                return pageCount;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return isLastPage;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return isLoading;
+            }
+        });
 
         recyclerView.addOnItemTouchListener(
                 new MyClickListener(context, recyclerView, new MyClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
 
-
                         String imdbId = data.get(position).getImdbID();
-
+                        //Send IMDB ID to DetailActivity
                         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
                         intent.putExtra("imdbId", imdbId);
                         startActivity(intent);
@@ -70,12 +117,9 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onLongItemClick(View view, int position) {
-
                     }
                 })
         );
-
-
     }
         //Option menu for search field
     @Override
@@ -99,9 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
             public boolean onQueryTextSubmit(String query) {
                 keyWord = query;
-                recyclerView.setHasFixedSize(true);
-                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-                recyclerView.setLayoutManager(layoutManager);
+
                 loadJSON();
                 return true;
             }
@@ -113,17 +155,27 @@ public class MainActivity extends AppCompatActivity {
 
  // Load Json data from server using Retrofit
     private void loadJSON() {
-        Call<JSONResponse> call = requestInterface.getSearch(keyWord, API_KEY);
+        Call<JSONResponse> call = requestInterface.getSearch(keyWord, API_KEY,page);
         call.enqueue(new Callback<JSONResponse>() {
             @Override
             public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
 
                 JSONResponse jsonResponse = response.body();
 
+
                 if (((jsonResponse.response.equals("True")) && (response.isSuccessful()))) {
+                        //calculate how much pages of search results we got
+                        pageCount = pageCount(jsonResponse.totalResults);
+                        Log.d("Page count:", String.valueOf(pageCount));
 
+                    List<Movie> casheData = jsonResponse.data;
+                    Log.d("pageee:", page);
 
+                    if(page.equals("1")) {
                         data = jsonResponse.data;
+                    }else {
+                        data.addAll(casheData);
+                    }
                         adapter = new DataAdapter(data);
                         recyclerView.setAdapter(adapter);
                     }else {
@@ -139,6 +191,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private Integer pageCount(String totalResults){
+        int results;
+        int reminder;
+        reminder = (Integer.valueOf(totalResults)%10);
+        results = (Integer.valueOf(totalResults)/10);
+        if (reminder !=0){
+            return results+1;
+        }else{
+            return results;
+        }
+    }
+
+
 
 
 

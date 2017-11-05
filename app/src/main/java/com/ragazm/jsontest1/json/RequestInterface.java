@@ -15,7 +15,8 @@ public interface RequestInterface {
 
     @GET("/?")
     Call<JSONResponse> getSearch(@Query("s") String title,
-                                 @Query("apikey") String apiKey);
+                                 @Query("apikey") String apiKey,
+                                 @Query("page") String page);
 
     @GET("/?")
     Call<MovieDetails> getDetails(@Query("i") String imdbId,
