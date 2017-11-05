@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Window;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.view.Menu;
 import android.view.View;
@@ -28,7 +29,7 @@ import retrofit2.Response;
 
 /**
  * Created by Andris on 002 02.11.17.
- * TODO fix bugs!!! load all results, make nice loading bar
+ * TODO fix bugs!!!  make nice loading bar
  *
  */
 
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
     private List<Movie> data;
+
 
     private DataAdapter adapter;
    // Confidential information such as private api key can't be shared in public lol :)
@@ -61,7 +63,10 @@ public class MainActivity extends AppCompatActivity {
         //Bind http client with our call interface
         requestInterface = APIClient.getClient().create(RequestInterface.class);
 
+
         pageCount = 0;
+
+
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -78,10 +83,9 @@ public class MainActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        page = String.valueOf(Integer.valueOf(page) + 1);
-
                         loadJSON();
                     }
+
                 }, 1000);
 
 
@@ -143,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
 
             public boolean onQueryTextSubmit(String query) {
                 keyWord = query;
+                //reset when new search performed
+                page = "1";
+                data = null;
 
                 loadJSON();
                 return true;
@@ -155,10 +162,12 @@ public class MainActivity extends AppCompatActivity {
 
  // Load Json data from server using Retrofit
     private void loadJSON() {
+
         Call<JSONResponse> call = requestInterface.getSearch(keyWord, API_KEY,page);
         call.enqueue(new Callback<JSONResponse>() {
             @Override
             public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
+
 
                 JSONResponse jsonResponse = response.body();
 
@@ -166,21 +175,29 @@ public class MainActivity extends AppCompatActivity {
                 if (((jsonResponse.response.equals("True")) && (response.isSuccessful()))) {
                         //calculate how much pages of search results we got
                         pageCount = pageCount(jsonResponse.totalResults);
-                        Log.d("Page count:", String.valueOf(pageCount));
+                    Log.d("ASDAPage count:", String.valueOf(pageCount));
 
-                    List<Movie> casheData = jsonResponse.data;
-                    Log.d("pageee:", page);
+                    List<Movie> cacheData = jsonResponse.data;
+                    Log.d("ASDApage:", page);
+
+
 
                     if(page.equals("1")) {
                         data = jsonResponse.data;
                     }else {
-                        data.addAll(casheData);
+                        data.addAll(cacheData);
                     }
                         adapter = new DataAdapter(data);
                         recyclerView.setAdapter(adapter);
+                    page = String.valueOf(Integer.valueOf(page) + 1);
+
                     }else {
-                    Toast.makeText(getApplicationContext(), "Nothing found, try again!", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(getApplicationContext(), "Nothing found, try again!", Toast.LENGTH_SHORT).show();
+
                 }
+
+
                 }
 
             @Override
@@ -191,7 +208,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    //Counts how many pages needs to be downloaded to view all results
+    //OMDB API allows 10 results per page, one page per request
     private Integer pageCount(String totalResults){
         int results;
         int reminder;
@@ -203,10 +221,6 @@ public class MainActivity extends AppCompatActivity {
             return results;
         }
     }
-
-
-
-
 
 }
 

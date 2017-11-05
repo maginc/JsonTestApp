@@ -29,9 +29,10 @@ public abstract class PageScrollListener extends RecyclerView.OnScrollListener{
         Log.d("first visible position:", String.valueOf(firstVisibleItemPosition));
 
        if (!isLoading() && !isLastPage()) {
+
             if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                     && firstVisibleItemPosition >= 0
-                    && totalItemCount >= getTotalPageCount()) {
+                   /** && totalItemCount >= getTotalPageCount()**/) { Log.d("IMHERE!", "REACHED THIS POINT");
 
                 loadMoreItems();
             }
