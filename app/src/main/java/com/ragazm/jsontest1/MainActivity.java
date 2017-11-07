@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DataAdapter adapter;
    // Confidential information such as private api key can't be shared in public lol :)
-    private static final String API_KEY = "dc6b8a0";
+    private static final String API_KEY = "ENTER_YOUR_API_KEY_HERE";
     private String keyWord;
     private String page;
     private String totalResults;
