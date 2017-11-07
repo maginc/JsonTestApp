@@ -35,7 +35,7 @@ public class DetailActivity extends AppCompatActivity {
     private String imdbId;
     RequestInterface requestInterface;
     private String shortFullPlot;
-    private static final String API_KEY = "dc6b8a0";
+    private static final String API_KEY = "ENTER_YOUR_API_KEY_HERE";
     TextView textPlot;
     TextView textView;
     TextView textYear;
